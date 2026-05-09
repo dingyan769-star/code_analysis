@@ -6,6 +6,7 @@ import subprocess
 import tempfile
 import json
 import time
+import os
 import redis
 import threading
 from typing import Any
@@ -37,6 +38,8 @@ class AnalysisRequest(BaseModel):
 def run_command(cmd: list[str], cwd: str | None = None) -> subprocess.CompletedProcess:
     start_time = time.perf_counter()
     print(str(cmd))
+    env = os.environ.copy()
+    env["GIT_TERMINAL_PROMPT"] = "0"
     try:
         result = subprocess.run(
             cmd,
@@ -44,6 +47,7 @@ def run_command(cmd: list[str], cwd: str | None = None) -> subprocess.CompletedP
             capture_output=True,
             text=True,
             check=True,
+            enc=env,
         )
         duration = (time.perf_counter() - start_time)
         print(f"Duration: %.1f s" % duration)
